@@ -1,0 +1,45 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+	name: blue-green
+	labels:
+		app: blue-green
+		namespace: default
+spec:
+	replicas: 2
+	selector:
+		matchLabels:
+			app: blue-green
+	strategy:
+		rollingUpdate:
+			maxSurge: 25%
+			maxUnavailable: 25%
+		type: RollingUpdate
+	template:
+		metadata:
+			labels:
+				app: blue-green
+		spec:
+			containers:
+				- image: prudhviraaz14/mywebapp:mywebapp
+				  imagePullPolicy: Always
+				  name: blue-green
+				  ports:
+					- containerPort: 80
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+	name: blue-green
+	labels:
+		app: blue-green
+spec:
+	type: LoadBalancer
+	selector:
+		app: blue-green
+	ports:
+		- port: 80
+		  targetPort: 80
+		  nodePort: 30000
+		  protocol: TCP
